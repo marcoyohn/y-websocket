@@ -3,7 +3,7 @@
   "version": "1.5.4",
   "description": "Websockets provider for Yjs",
   "main": "./dist/y-websocket.cjs",
-  "module": "./src/y-websocket.js",
+  "module": "./dist/y-websocket.js",
   "types": "./dist/src/y-websocket.d.ts",
   "type": "module",
   "sideEffects": false,
@@ -32,8 +32,8 @@
     "./bin/utils": "./bin/utils.js",
     "./bin/callback": "./bin/callback.js",
     ".": {
-      "module": "./src/y-websocket.js",
-      "import": "./src/y-websocket.js",
+      "module": "./dist/y-websocket.js",
+      "import": "./dist/y-websocket.js",
       "require": "./dist/y-websocket.cjs",
       "types": "./dist/src/y-websocket.d.ts"
     }
