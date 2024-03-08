@@ -21,6 +21,8 @@ export const messageSync = 0
 export const messageQueryAwareness = 3
 export const messageAwareness = 1
 export const messageAuth = 2
+export const messagePermissionDenied = 0
+export const messagePermissionAllowed = 0
 
 /**
  *                       encoder,          decoder,          provider,          emitSynced, messageType
@@ -88,11 +90,19 @@ messageHandlers[messageAuth] = (
   _emitSynced,
   _messageType
 ) => {
-  authProtocol.readAuthMessage(
-    decoder,
-    provider.doc,
-    (_ydoc, reason) => permissionDeniedHandler(provider, reason)
-  )
+  switch (decoding.readVarUint(decoder)) {
+    case messagePermissionAllowed: 
+      //send sync step 1 when authed
+      const encoder = encoding.createEncoder();
+      encoding.writeVarUint(encoder, messageSync);
+      syncProtocol.writeSyncStep1(encoder, provider.doc);
+      // @ts-ignore
+      provider['ws'].send(encoding.toUint8Array(encoder));      
+      break;
+    case messagePermissionDenied: 
+      permissionDeniedHandler(provider, decoding.readVarString(decoder));
+      break;
+  }
 }
 
 // @todo - this should depend on awareness.outdatedTime
@@ -186,11 +196,7 @@ const setupWS = (provider) => {
       provider.emit('status', [{
         status: 'connected'
       }])
-      // always send sync step 1 when connected
-      const encoder = encoding.createEncoder()
-      encoding.writeVarUint(encoder, messageSync)
-      syncProtocol.writeSyncStep1(encoder, provider.doc)
-      websocket.send(encoding.toUint8Array(encoder))
+      
       // broadcast local awareness state
       if (provider.awareness.getLocalState() !== null) {
         const encoderAwarenessState = encoding.createEncoder()
