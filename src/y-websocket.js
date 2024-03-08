@@ -22,7 +22,7 @@ export const messageQueryAwareness = 3
 export const messageAwareness = 1
 export const messageAuth = 2
 export const messagePermissionDenied = 0
-export const messagePermissionAllowed = 0
+export const messagePermissionAllowed = 1
 
 /**
  *                       encoder,          decoder,          provider,          emitSynced, messageType
