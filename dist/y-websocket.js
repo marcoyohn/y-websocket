@@ -1,15 +1,15 @@
 import 'yjs';
-import * as bc from 'lib0/dist/broadcastchannel.cjs';
-import * as time from 'lib0/dist/time.cjs';
-import * as encoding from 'lib0/dist/encoding.cjs';
-import * as decoding from 'lib0/dist/decoding.cjs';
-import * as syncProtocol from 'y-protocols/dist/sync.js';
-import 'y-protocols/dist/auth.js';
-import * as awarenessProtocol from 'y-protocols/dist/awareness.js';
-import { Observable } from 'lib0/dist/observable.cjs';
-import * as math from 'lib0/dist/math.cjs';
-import * as url from 'lib0/dist/url.cjs';
-import * as env from 'lib0/dist/environment.cjs';
+import * as bc from 'lib0/broadcastchannel';
+import * as time from 'lib0/time';
+import * as encoding from 'lib0/encoding';
+import * as decoding from 'lib0/decoding';
+import * as syncProtocol from 'y-protocols/sync';
+import 'y-protocols/auth';
+import * as awarenessProtocol from 'y-protocols/awareness';
+import { Observable } from 'lib0/observable';
+import * as math from 'lib0/math';
+import * as url from 'lib0/url';
+import * as env from 'lib0/environment';
 
 /**
  * @module provider/websocket
