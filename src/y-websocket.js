@@ -337,7 +337,7 @@ export class WebsocketProvider extends Observable {
     this._updateHandler = (update, origin) => {
       if (origin !== this) {
         if(!this._synced) {
-          console.log("provider not synced, ignore update", update);
+          console.warn("provider not synced, ignore update", update);
           return;
         }
         const encoder = encoding.createEncoder()
