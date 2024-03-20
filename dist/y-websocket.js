@@ -115,7 +115,7 @@ messageHandlers[messageAuth] = (
       const encoderAwarenessQuery = encoding.createEncoder();
       encoding.writeVarUint(encoderAwarenessQuery, messageQueryAwareness);
       // @ts-ignore
-      provider['ws'].send(encoding.toUint8Array(encoderAwarenessState));
+      provider['ws'].send(encoding.toUint8Array(encoderAwarenessQuery));
 
       break;
     case messagePermissionDenied: 
