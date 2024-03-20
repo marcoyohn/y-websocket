@@ -97,7 +97,28 @@ messageHandlers[messageAuth] = (
       encoding.writeVarUint(encoder, messageSync);
       syncProtocol.writeSyncStep1(encoder, provider.doc);
       // @ts-ignore
-      provider['ws'].send(encoding.toUint8Array(encoder));      
+      provider['ws'].send(encoding.toUint8Array(encoder));    
+      
+      // broadcast local awareness state
+      if (provider.awareness.getLocalState() !== null) {
+        const encoderAwarenessState = encoding.createEncoder()
+        encoding.writeVarUint(encoderAwarenessState, messageAwareness)
+        encoding.writeVarUint8Array(
+          encoderAwarenessState,
+          awarenessProtocol.encodeAwarenessUpdate(provider.awareness, [
+            provider.doc.clientID
+          ])
+        )
+        // @ts-ignore
+        provider['ws'].send(encoding.toUint8Array(encoderAwarenessState))
+      }
+
+      // write queryAwareness
+      const encoderAwarenessQuery = encoding.createEncoder()
+      encoding.writeVarUint(encoderAwarenessQuery, messageQueryAwareness)
+      // @ts-ignore
+      provider['ws'].send(encoding.toUint8Array(encoderAwarenessState));
+
       break;
     case messagePermissionDenied: 
       permissionDeniedHandler(provider, decoding.readVarString(decoder));
@@ -196,19 +217,6 @@ const setupWS = (provider) => {
       provider.emit('status', [{
         status: 'connected'
       }])
-      
-      // broadcast local awareness state
-      if (provider.awareness.getLocalState() !== null) {
-        const encoderAwarenessState = encoding.createEncoder()
-        encoding.writeVarUint(encoderAwarenessState, messageAwareness)
-        encoding.writeVarUint8Array(
-          encoderAwarenessState,
-          awarenessProtocol.encodeAwarenessUpdate(provider.awareness, [
-            provider.doc.clientID
-          ])
-        )
-        websocket.send(encoding.toUint8Array(encoderAwarenessState))
-      }
     }
     provider.emit('status', [{
       status: 'connecting'
@@ -264,7 +272,7 @@ export class WebsocketProvider extends Observable {
     WebSocketPolyfill = WebSocket,
     resyncInterval = -1,
     maxBackoffTime = 2500,
-    disableBc = false
+    disableBc = true
   } = {}) {
     super()
     // ensure that url is always ends with /
@@ -337,7 +345,7 @@ export class WebsocketProvider extends Observable {
     this._updateHandler = (update, origin) => {
       if (origin !== this) {
         if(!this._synced) {
-          console.warn("provider not synced, ignore update", update);
+          console.warn("provider not synced, ignore sync doc update", update);
           return;
         }
         const encoder = encoding.createEncoder()
@@ -352,6 +360,10 @@ export class WebsocketProvider extends Observable {
      * @param {any} _origin
      */
     this._awarenessUpdateHandler = ({ added, updated, removed }, _origin) => {
+      if(!this._synced) {
+        console.warn("provider not synced, ignore sync awareness update");
+        return;
+      }
       const changedClients = added.concat(updated).concat(removed)
       const encoder = encoding.createEncoder()
       encoding.writeVarUint(encoder, messageAwareness)
