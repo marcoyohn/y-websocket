@@ -117,6 +117,9 @@ messageHandlers[messageAuth] = (
       // @ts-ignore
       provider['ws'].send(encoding.toUint8Array(encoderAwarenessQuery));
 
+      // emit message
+      provider.emit('authed-success', [{
+      }]);
       break;
     case messagePermissionDenied: 
       permissionDeniedHandler(provider, decoding.readVarString(decoder));
@@ -131,8 +134,22 @@ const messageReconnectTimeout = 30000;
  * @param {WebsocketProvider} provider
  * @param {string} reason
  */
-const permissionDeniedHandler = (provider, reason) =>
+const permissionDeniedHandler = (provider, reason) => {
   console.warn(`Permission denied to access ${provider.url}.\n${reason}`);
+  if (reason === 'NotAuth' 
+      || reason === 'WrongHashServer') {
+    // try reconnect
+    provider.disconnect();
+    provider.connect();
+  } else {
+    // CredentialFailed NotPermission DocInitFailed CrdtBranchNotMatched
+    // emit message
+    provider.emit('authed-fail', [{
+      reason: reason
+    }]);
+  }
+};
+  
 
 /**
  * @param {WebsocketProvider} provider
