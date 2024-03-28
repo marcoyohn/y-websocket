@@ -296,8 +296,8 @@ class WebsocketProvider extends Observable {
     }
     const encodedParams = url.encodeQueryParams(params);
     this.maxBackoffTime = maxBackoffTime;
-    this.bcChannel = serverUrl + '/' + roomname;
-    this.url = serverUrl + '/' + roomname +
+    this.bcChannel = serverUrl + '/' + roomname + ".cowork";
+    this.url = serverUrl + '/' + roomname + ".cowork" +
       (encodedParams.length === 0 ? '' : '?' + encodedParams);
     this.roomname = roomname;
     this.doc = doc;
