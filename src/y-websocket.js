@@ -130,7 +130,7 @@ messageHandlers[messageAuth] = (
 }
 
 // @todo - this should depend on awareness.outdatedTime
-const messageReconnectTimeout = 30000
+const messageReconnectTimeout = 1800000
 
 /**
  * @param {WebsocketProvider} provider
@@ -369,6 +369,7 @@ export class WebsocketProvider extends Observable {
         encoding.writeVarUint(encoder, messageSync)
         syncProtocol.writeUpdate(encoder, update)
         broadcastMessage(this, encoding.toUint8Array(encoder))
+        this.wsLastMessageReceived = time.getUnixTime()
       }
     }
     this.doc.on('update', this._updateHandler)
@@ -389,6 +390,7 @@ export class WebsocketProvider extends Observable {
         awarenessProtocol.encodeAwarenessUpdate(awareness, changedClients)
       )
       broadcastMessage(this, encoding.toUint8Array(encoder))
+      this.wsLastMessageReceived = time.getUnixTime()
     }
     this._exitHandler = () => {
       awarenessProtocol.removeAwarenessStates(
